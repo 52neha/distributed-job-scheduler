@@ -1,0 +1,27 @@
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: scheduler-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: scheduler_user
+      POSTGRES_PASSWORD: local_dev_password
+      POSTGRES_DB: scheduler_db
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scheduler_user -d scheduler_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
