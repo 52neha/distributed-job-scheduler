@@ -2,11 +2,6 @@ package main
 
 import "time"
 
-type CreateJobRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
 type Job struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`

@@ -14,6 +14,7 @@ type HealthResponse struct {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
+		w.Header().Set("Allow", http.MethodGet)
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -26,7 +27,6 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Backend is running successfully",
 	}
 
-	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Failed to encode health response: %v", err)
 	}
@@ -58,8 +58,9 @@ func main() {
 	defer db.Close()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/health", healthHandler)
-	mux.HandleFunc("/api/v1/jobs", createJobHandler(db))
+	mux.HandleFunc("GET /api/health", healthHandler)
+	mux.HandleFunc("POST /api/v1/jobs", createJobHandler(db))
+	mux.HandleFunc("GET /api/v1/jobs", listJobsHandler(db))
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -67,7 +68,6 @@ func main() {
 	}
 
 	log.Println("Scheduler API starting on http://localhost:8080")
-
 	if err := server.ListenAndServe(); err != nil &&
 		err != http.ErrServerClosed {
 		log.Fatal(err)
